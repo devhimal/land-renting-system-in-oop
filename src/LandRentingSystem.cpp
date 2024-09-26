@@ -1,4 +1,3 @@
-
 #include "LandRentingSystem.h"
 #include <chrono>
 #include <iostream>
@@ -49,14 +48,16 @@ void LandRentingSystem::generateInvoice(int id)
                 if (rental.getParcel().getParcelID() == id)
                 { // Use the getter method
                     // Calculate rental cost
-                    auto duration = std::chrono::duration_cast<std::chrono::days>(rental.getEndDate() - rental.getStartDate()).count();
-                    double rentalCost = duration * COST_PER_SQUARE_METER_NPR * parcel.getArea();
+                    auto startDate = std::chrono::system_clock::to_time_t(rental.getStartDate());
+                    auto endDate = std::chrono::system_clock::to_time_t(rental.getEndDate());
+                    auto duration = std::chrono::duration_cast<std::chrono::hours>(rental.getEndDate() - rental.getStartDate()).count();
+                    double rentalCost = duration / 24.0 * COST_PER_SQUARE_METER_NPR * parcel.getArea(); // Convert hours to days
 
                     // Write to the file
                     outFile << "Generating invoice for Parcel ID: " << id << "\n";
                     outFile << "Location: " << parcel.getLocation() << "\n";
                     outFile << "Area: " << parcel.getArea() << " square meters\n";
-                    outFile << "Rental Duration: " << duration << " days\n";
+                    outFile << "Rental Duration: " << duration / 24.0 << " days\n"; // Convert hours to days
                     outFile << "Cost Per Square Meter: NPR " << COST_PER_SQUARE_METER_NPR << "\n";
                     outFile << "Total Rental Cost: NPR " << rentalCost << "\n";
 
@@ -87,15 +88,15 @@ void LandRentingSystem::displayBookedParcels() const
     for (const auto &rental : rentals)
     {
         const LandParcel &parcel = rental.getParcel(); // Use the getter method
-        auto duration = std::chrono::duration_cast<std::chrono::days>(rental.getEndDate() - rental.getStartDate()).count();
-        double rentalCost = duration * COST_PER_SQUARE_METER_NPR * parcel.getArea();
+        auto duration = std::chrono::duration_cast<std::chrono::hours>(rental.getEndDate() - rental.getStartDate()).count();
+        double rentalCost = duration / 24.0 * COST_PER_SQUARE_METER_NPR * parcel.getArea(); // Convert hours to days
         std::cout << "-----------Your Booking Details-----------" << std::endl;
         std::cout << "Rental ID: " << rental.getRentalID() << std::endl;
         std::cout << "Tenant: " << rental.getTenantName() << std::endl;
         std::cout << "Parcel ID: " << parcel.getParcelID() << std::endl;
         std::cout << "Location: " << parcel.getLocation() << std::endl;
         std::cout << "Area: " << parcel.getArea() << " square meters" << std::endl;
-        std::cout << "Rental Duration: " << duration << " days" << std::endl;
+        std::cout << "Rental Duration: " << duration / 24.0 << " days" << std::endl; // Convert hours to days
         std::cout << "Cost Per Square Meter: NPR " << COST_PER_SQUARE_METER_NPR << std::endl;
         std::cout << "Total Rental Cost: NPR " << rentalCost << std::endl;
         std::cout << "-----------Your Booking Details-----------" << std::endl;
